@@ -84,7 +84,7 @@ in {
     };
     dbPassword = mkOption {
       type = types.str;
-      default = "";
+      default = "nbUser";
       description = "Database password.";
     };
   };
