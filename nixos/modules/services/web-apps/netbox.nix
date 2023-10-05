@@ -27,6 +27,15 @@ let
     sudo -u netbox ${pkg}/bin/netbox "$@"
   '');
 
+  dbName = "Netbox";
+  dbUser = "NetboxUser";
+  dbPassword = "Netbox";
+  dbHost = "127.0.0.1";
+  dbPort = "5432";  # Usually 5432 for PostgreSQL
+
+  redisHost = "your-redis-host";
+  redisPort = "your-redis-port";
+
 in {
   options.services.netbox = {
     enable = lib.mkOption {
@@ -199,9 +208,11 @@ in {
         GIT_PATH = "${pkgs.gitMinimal}/bin/git";
 
         DATABASE = {
-          NAME = "netbox";
-          USER = "netbox";
-          HOST = "/run/postgresql";
+          NAME = dbName;
+          USER = dbUser;
+          PASSWORD = dbPassword;
+          HOST = dbHost;
+          PORT = dbPort;
         };
 
         # Redis database settings. Redis is used for caching and for queuing
@@ -210,14 +221,14 @@ in {
         # sections, and it is strongly recommended to use two separate database
         # IDs.
         REDIS = {
-            tasks = {
-                URL = "unix://${config.services.redis.servers.netbox.unixSocket}?db=0";
-                SSL = false;
-            };
-            caching =  {
-                URL = "unix://${config.services.redis.servers.netbox.unixSocket}?db=1";
-                SSL = false;
-            };
+          tasks = {
+              URL = "redis://${redisHost}:${redisPort}?db=0";
+              SSL = false;  # Set to true if your Redis server requires SSL
+          };
+          caching = {
+              URL = "redis://${redisHost}:${redisPort}?db=1";
+              SSL = false;  # Set to true if your Redis server requires SSL
+          };
         };
 
         REMOTE_AUTH_BACKEND = lib.mkIf cfg.enableLdap "netbox.authentication.LDAPBackend";
@@ -251,18 +262,18 @@ in {
 
     services.redis.servers.netbox.enable = true;
 
-    services.postgresql = {
-      enable = true;
-      ensureDatabases = [ "netbox" ];
-      ensureUsers = [
-        {
-          name = "netbox";
-          ensurePermissions = {
-            "DATABASE netbox" = "ALL PRIVILEGES";
-          };
-        }
-      ];
-    };
+#    services.postgresql = {
+#      enable = true;
+#      ensureDatabases = [ "netbox" ];
+#      ensureUsers = [
+#        {
+#          name = "netbox";
+#          ensurePermissions = {
+#            "DATABASE netbox" = "ALL PRIVILEGES";
+#          };
+#        }
+#      ];
+#    };
 
     environment.systemPackages = [ netboxManageScript ];
 
