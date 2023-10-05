@@ -26,16 +26,6 @@ let
     export PYTHONPATH=${pkg.pythonPath}
     sudo -u netbox ${pkg}/bin/netbox "$@"
   '');
-
-  dbName = "Netbox";
-  dbUser = "NetboxUser";
-  dbPassword = "Netbox";
-  dbHost = "127.0.0.1";
-  dbPort = "5432";  # Usually 5432 for PostgreSQL
-
-  redisHost = "your-redis-host";
-  redisPort = "your-redis-port";
-
 in {
   options.services.netbox = {
     enable = lib.mkOption {
@@ -71,7 +61,33 @@ in {
           };
         };
       };
+
+    dbHost = mkOption {
+    type = types.str;
+    default = "localhost";
+    description = "Database host.";
     };
+    dbPort = mkOption {
+      type = types.str;
+      default = "5432";
+      description = "Database port.";
+    };
+    dbName = mkOption {
+      type = types.str;
+      default = "netbox";
+      description = "Database name.";
+    };
+    dbUser = mkOption {
+      type = types.str;
+      default = "netbox";
+      description = "Database user.";
+    };
+    dbPassword = mkOption {
+      type = types.str;
+      default = "";
+      description = "Database password.";
+    };
+  };
 
     listenAddress = lib.mkOption {
       type = lib.types.str;
@@ -208,11 +224,11 @@ in {
         GIT_PATH = "${pkgs.gitMinimal}/bin/git";
 
         DATABASE = {
-          NAME = dbName;
-          USER = dbUser;
-          PASSWORD = dbPassword;
-          HOST = dbHost;
-          PORT = dbPort;
+          NAME = cfg.dbName;
+          USER = cfg.dbUser;
+          PASSWORD = cfg.dbPassword;
+          HOST = cfg.dbHost;
+          PORT = cfg.dbPort;
         };
 
         # Redis database settings. Redis is used for caching and for queuing
