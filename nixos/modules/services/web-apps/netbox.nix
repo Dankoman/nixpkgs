@@ -62,31 +62,43 @@ in {
         };
       };
 
-    dbHost = mkOption {
-    type = types.str;
+    dbHost = lib.mkOption {
+    type = lib.types.str;
     default = "localhost";
     description = "Database host.";
     };
-    dbPort = mkOption {
-      type = types.str;
+    dbPort = lib.mkOption {
+      type = lib.types.str;
       default = "5432";
       description = "Database port.";
     };
-    dbName = mkOption {
-      type = types.str;
+    dbName = lib.mkOption {
+      type = lib.types.str;
       default = "netbox";
       description = "Database name.";
     };
-    dbUser = mkOption {
-      type = types.str;
+    dbUser = lib.mkOption {
+      type = lib.types.str;
       default = "netbox";
       description = "Database user.";
     };
-    dbPassword = mkOption {
-      type = types.str;
+    dbPassword = lib.mkOption {
+      type = lib.types.str;
       default = "nbUser";
       description = "Database password.";
     };
+    redisHost = lib.mkOption {
+      type = lib.types.str;
+      default = "localhost";
+      description = "redisHost";
+    };
+    redisPort = lib.mkOption {
+      type = lib.types.str;
+      default = "6379";
+      description = "redisHost";
+    };
+
+
   };
 
     listenAddress = lib.mkOption {
@@ -238,11 +250,11 @@ in {
         # IDs.
         REDIS = {
           tasks = {
-              URL = "redis://${redisHost}:${redisPort}?db=0";
+              URL = "redis://${cfg.redisHost}:${cfg.redisPort}?db=0";
               SSL = false;  # Set to true if your Redis server requires SSL
           };
           caching = {
-              URL = "redis://${redisHost}:${redisPort}?db=1";
+              URL = "redis://${cfg.redisHost}:${cfg.redisPort}?db=1";
               SSL = false;  # Set to true if your Redis server requires SSL
           };
         };
