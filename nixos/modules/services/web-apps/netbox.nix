@@ -26,6 +26,12 @@ let
     export PYTHONPATH=${pkg.pythonPath}
     sudo -u netbox ${pkg}/bin/netbox "$@"
   '');
+
+  dbName = "Netbox";
+  dbUser = "NetboxUser";
+  dbPassword = "Netbox";
+  dbHost = "127.0.0.1";
+  dbPort = "5432";  # Usually 5432 for PostgreSQL
 in {
   options.services.netbox = {
     enable = lib.mkOption {
@@ -62,41 +68,7 @@ in {
         };
       };
 
-    dbHost = lib.mkOption {
-    type = lib.types.str;
-    default = "localhost";
-    description = "Database host.";
-    };
-    dbPort = lib.mkOption {
-      type = lib.types.str;
-      default = "5432";
-      description = "Database port.";
-    };
-    dbName = lib.mkOption {
-      type = lib.types.str;
-      default = "netbox";
-      description = "Database name.";
-    };
-    dbUser = lib.mkOption {
-      type = lib.types.str;
-      default = "netbox";
-      description = "Database user.";
-    };
-    dbPassword = lib.mkOption {
-      type = lib.types.str;
-      default = "nbUser";
-      description = "Database password.";
-    };
-    redisHost = lib.mkOption {
-      type = lib.types.str;
-      default = "localhost";
-      description = "redisHost";
-    };
-    redisPort = lib.mkOption {
-      type = lib.types.str;
-      default = "6379";
-      description = "redisHost";
-    };
+   
 
 
   };
@@ -236,11 +208,11 @@ in {
         GIT_PATH = "${pkgs.gitMinimal}/bin/git";
 
         DATABASE = {
-          NAME = cfg.dbName;
-          USER = cfg.dbUser;
-          PASSWORD = cfg.dbPassword;
-          HOST = cfg.dbHost;
-          PORT = cfg.dbPort;
+          NAME = dbName;
+          USER = dbUser;
+          PASSWORD = dbPassword;
+          HOST = dbHost;
+          PORT = dbPort;
         };
 
         # Redis database settings. Redis is used for caching and for queuing
@@ -250,11 +222,11 @@ in {
         # IDs.
         REDIS = {
           tasks = {
-              URL = "redis://${cfg.redisHost}:${cfg.redisPort}?db=0";
+              URL = "unix://${config.services.redis.servers.netbox.unixSocket}?db=0";
               SSL = false;  # Set to true if your Redis server requires SSL
           };
           caching = {
-              URL = "redis://${cfg.redisHost}:${cfg.redisPort}?db=1";
+              URL = "unix://${config.services.redis.servers.netbox.unixSocket}?db=1";
               SSL = false;  # Set to true if your Redis server requires SSL
           };
         };
