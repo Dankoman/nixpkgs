@@ -27,8 +27,8 @@ let
     sudo -u netbox ${pkg}/bin/netbox "$@"
   '');
 
-  dbName = "Netbox";
-  dbUser = "NetboxUser";
+  dbName = "netbox";
+  dbUser = "netboxuser";
   dbPassword = "Netbox";
   dbHost = "127.0.0.1";
   dbPort = "5432";  # Usually 5432 for PostgreSQL
